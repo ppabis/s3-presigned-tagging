@@ -8,6 +8,7 @@ resource "random_string" "bucket-name" {
 
 resource "aws_s3_bucket" "bucket" {
   bucket = "photos-${random_string.bucket-name.result}"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket-public" {
