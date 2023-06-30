@@ -55,3 +55,11 @@ resource "aws_iam_role_policy_attachment" "lambda-create-basic-execution" {
   role = aws_iam_role.lambda-post-bucket.name
   policy_arn = data.aws_iam_policy.lambda-logs.arn
 }
+
+data "aws_iam_policy" "lambda-vpc-execution" {
+  name = "AWSLambdaVPCAccessExecutionRole"
+}
+resource "aws_iam_role_policy_attachment" "lambda-vpc-execution" {
+  role = aws_iam_role.lambda-post-bucket.name
+  policy_arn = data.aws_iam_policy.lambda-vpc-execution.arn
+}

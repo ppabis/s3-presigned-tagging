@@ -53,10 +53,27 @@ resource "aws_lambda_function" "create" {
       # So we hardcode the value of the API Gateway URL after applying the infrastructure
     }
   }
+
+  vpc_config {
+    subnet_ids = [aws_subnet.lambda-elasticache.id]
+    security_group_ids = [aws_security_group.lambda.id]
+  }
 }
 resource "aws_lambda_permission" "api-create" {
   function_name = aws_lambda_function.create.function_name
   source_arn = "${aws_api_gateway_rest_api.api.execution_arn}/*/POST/*"
   principal = "apigateway.amazonaws.com"
   action = "lambda:InvokeFunction"
+}
+
+resource "aws_security_group" "lambda" {
+  name        = "LambdaSecurityGroup-${random_string.bucket-name.result}"
+  description = "Security group for lambdas for photos bucket"
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
 }
