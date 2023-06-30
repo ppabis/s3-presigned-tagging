@@ -14,6 +14,12 @@ resource "aws_lambda_function" "list" {
   runtime       = "python3.8"
   function_name = "list-${random_string.bucket-name.result}"
   source_code_hash = data.archive_file.lambda-list.output_base64sha256
+
+  environment {
+    variables = {
+      BUCKET_NAME = aws_s3_bucket.bucket.id
+    }
+  }
 }
 
 resource "aws_lambda_permission" "api-list" {
