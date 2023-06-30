@@ -6,3 +6,6 @@ It includes the infrastructure in Terraform:
 * IAM roles and policies
 * ElastiCache Redis cluster
 * S3 bucket for uploads
+
+Before deploying, remember to install Lambda dependencies in:
+`infrastructure/lambda/create/`
