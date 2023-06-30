@@ -15,7 +15,16 @@ resource "aws_iam_role" "lambda-show-bucket" {
   })
 }
 
+data "aws_iam_policy" "lambda-logs" {
+  name = "AWSLambdaBasicExecutionRole"
+}
+
 resource "aws_iam_role_policy_attachment" "lambda-show-bucket" {
   role = aws_iam_role.lambda-show-bucket.name
   policy_arn = aws_iam_policy.list-bucket.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda-basic-execution" {
+  role = aws_iam_role.lambda-show-bucket.name
+  policy_arn = data.aws_iam_policy.lambda-logs.arn
 }
