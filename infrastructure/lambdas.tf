@@ -48,6 +48,7 @@ resource "aws_lambda_function" "create" {
       BUCKET_NAME = aws_s3_bucket.bucket.id
       REDIRECT = "https://99j7iqgrbl.execute-api.eu-central-1.amazonaws.com/prod" # Because of Terraform dependency cycle, we cannot refer to the API Gateway here
       # So we hardcode the value of the API Gateway URL after applying the infrastructure
+      REDIS_HOST = aws_elasticache_cluster.elasticache.cache_nodes.0.address
     }
   }
 

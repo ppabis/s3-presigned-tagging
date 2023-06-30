@@ -1,8 +1,12 @@
 import boto3, uuid, os
 from urllib.parse import parse_qs
+from redis import Redis
 
 BUCKET_NAME = os.environ['BUCKET_NAME']
 REDIRECT = os.environ['REDIRECT']
+REDIS_HOST = os.environ['REDIS_HOST']
+
+redis = Redis(host=REDIS_HOST, port=6379)
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -23,11 +27,18 @@ HTML_TEMPLATE = """
 </html> 
 """
 
+def put_in_redis(key, title):
+    redis.set(key, title)
+    redis.expire(key, 600)
+    test = redis.get(key).decode('utf-8')
+    print(f"Redis test: {test}")
+
 def create_upload_form(event):
     body = parse_qs(event['body'])
     title = body['title'][0].replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
     uid = str(uuid.uuid4())
     print(f"Title: {title}, UUID: {uid}")
+    put_in_redis(uid, title)
     
     s3 = boto3.client('s3')
     upload_form_fields = s3.generate_presigned_post(
