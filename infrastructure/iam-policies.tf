@@ -29,3 +29,25 @@ resource "aws_iam_policy" "list-bucket" {
     ]
   })
 }
+
+resource "aws_iam_policy" "generate-post" {
+  name        = "GenerateUploadPost"
+  description = "Allows to generate post presigned links for the photos bucket"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "GeneratePost"
+        Effect = "Allow"
+        Action = [
+          "s3:GeneratePresignedPost",
+          "s3:PutObject"
+        ]
+        Resource = [
+          "${aws_s3_bucket.bucket.arn}",
+          "${aws_s3_bucket.bucket.arn}/*"
+        ]
+      }
+    ]
+  })
+}
