@@ -7,7 +7,8 @@ HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
     <head>
-        <style>* {{font-family: Sans-Serif;}}</style>
+        <style>* {{font-family: Sans-Serif;}}
+        img {{ max-width:250px; }}</style>
         <title>Best photos</title>
     </head>
     <body>
@@ -34,7 +35,12 @@ def get_list_items():
     list_items = []
     for item in items:
         title = get_object_title_tag(item['Key'])
-        list_items.append(f"<li><a href=\"http://{bucket_name}.s3.amazonaws.com/{item['Key']}\">{title}</a></li>")
+        list_items.append(f"""<li><div>
+                          <h3>{title}</h3>
+                          <a href=\"http://{bucket_name}.s3.amazonaws.com/{item['Key']}\">
+                            <img src=\"http://{bucket_name}.s3.amazonaws.com/{item['Key']}\">
+                          </a>
+                        </div></li>""")
     return "\n".join(list_items)
 
 def lambda_handler(event, context):
