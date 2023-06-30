@@ -19,13 +19,23 @@ HTML_TEMPLATE = """
 </html>
 """
 
+def get_object_title_tag(key):
+    # Will return either the tag "Title" or the key name if no tag is found
+    response = s3.get_object_tagging(Bucket=bucket_name, Key=key)
+    tags = response['TagSet']
+    for tag in tags:
+        if tag['Key'] == 'Title':
+            return tag['Value']
+    return key
+
 def get_list_items():
     response = s3.list_objects_v2(Bucket=bucket_name)
     items = response['Contents']
-    list_items = ""
+    list_items = []
     for item in items:
-        list_items += f"<li><a href=\"http://{bucket_name}.s3.amazonaws.com/{item['Key']}\">{item['Key']}</a></li>"
-    return list_items
+        title = get_object_title_tag(item['Key'])
+        list_items.append(f"<li><a href=\"http://{bucket_name}.s3.amazonaws.com/{item['Key']}\">{title}</a></li>")
+    return "\n".join(list_items)
 
 def lambda_handler(event, context):
     print("Hello from lambda")
