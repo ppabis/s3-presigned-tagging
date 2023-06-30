@@ -1,7 +1,7 @@
 data "archive_file" "lambda-list" {
   type = "zip"
   source {
-    content  = file("list.py")
+    content  = file("lambda/list/list.py")
     filename = "lambda.py"
   }
   output_path = "list.zip"
@@ -31,16 +31,13 @@ resource "aws_lambda_permission" "api-list" {
 
 data "archive_file" "lambda-create" {
   type = "zip"
-  source {
-    content = file("create.py")
-    filename = "lambda.py"
-  }
+  source_dir = "lambda/create/"
   output_path = "create.zip"
 }
 
 resource "aws_lambda_function" "create" {
   filename = data.archive_file.lambda-create.output_path
-  handler = "lambda.lambda_handler"
+  handler = "create.lambda_handler"
   role = aws_iam_role.lambda-post-bucket.arn
   runtime = "python3.8"
   function_name = "create-${random_string.bucket-name.result}"
