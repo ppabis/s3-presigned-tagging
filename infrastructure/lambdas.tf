@@ -1,3 +1,6 @@
+###
+# Lambda for listing the bucket
+###
 data "archive_file" "lambda-list" {
   type = "zip"
   source {
@@ -28,6 +31,10 @@ resource "aws_lambda_permission" "api-list" {
   principal = "apigateway.amazonaws.com"
   action = "lambda:InvokeFunction"
 }
+
+###
+# Lambda for creating a form for upload
+###
 
 data "archive_file" "lambda-create" {
   type = "zip"
@@ -74,4 +81,42 @@ resource "aws_security_group" "lambda" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
+}
+
+###
+# Lambda for updating the tags in the object
+###
+data "archive_file" "lambda-update" {
+  type = "zip"
+  source_dir = "lambda/update/"
+  output_path = "update.zip"
+}
+resource "aws_lambda_function" "update" {
+  filename = data.archive_file.lambda-update.output_path
+  handler = "update.lambda_handler"
+  role = aws_iam_role.lambda-update-object.arn
+  runtime = "python3.8"
+  function_name = "update-${random_string.bucket-name.result}"
+  source_code_hash = data.archive_file.lambda-update.output_base64sha256
+
+  environment {
+    variables = {
+      BUCKET_NAME = aws_s3_bucket.bucket.id
+      REDIS_HOST = aws_elasticache_cluster.elasticache.cache_nodes.0.address
+    }
+  }
+
+  vpc_config {
+    subnet_ids = [aws_subnet.lambda-elasticache.id]
+    security_group_ids = [aws_security_group.lambda.id]
+  }
+}
+
+resource "aws_lambda_permission" "s3-notification" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.update.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.bucket.arn
+  
 }

@@ -51,3 +51,23 @@ resource "aws_iam_policy" "generate-post" {
     ]
   })
 }
+
+resource "aws_iam_policy" "update-tagging" {
+  name = "UpdateObjectTagging"
+  description = "Allows to update object tags in the photos bucket"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "UpdateTagging"
+        Effect = "Allow"
+        Action = [
+          "s3:PutObjectTagging"
+        ]
+        Resource = [
+          "${aws_s3_bucket.bucket.arn}/*"
+        ]
+      }
+    ]
+  })
+}
